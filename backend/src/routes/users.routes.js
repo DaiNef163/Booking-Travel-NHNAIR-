@@ -6,7 +6,7 @@ const {
   profile,
   logout,
   uploadByLink,
-  upload,
+  // uploadFromDevice,
 } = require("../controllers/User.controller");
 const multer = require("multer");
 const photosMiddleware = multer({ dest: "uploads" });
@@ -19,6 +19,10 @@ router.post("/login", login);
 router.get("/profile", profile);
 router.post("/logout", logout);
 router.post("/upload-by-link", uploadByLink);
-router.post("/upload", photosMiddleware.array("photos", 100), upload);
+// router.post(
+//   "/upload-by-device",
+//   photosMiddleware.array("photos", 100),
+//   uploadFromDevice
+// );
 
 module.exports = router;

@@ -9,7 +9,7 @@ export default function PlacesPage() {
   const [title, setTitle] = useState("");
   const [address, setAddress] = useState("");
   const [photoLink, setPhotoLink] = useState("");
-  const [addedPhotos, setAddPhotos] = useState([]);
+  const [addedPhotos, setAddedPhotos] = useState([]);
   const [descriptions, setDescriptions] = useState("");
   const [perks, setPerks] = useState([]);
   const [extraInfo, setExtraInfo] = useState("");
@@ -36,26 +36,26 @@ export default function PlacesPage() {
     const { data: filename } = await axios.post("/upload-by-link", {
       link: photoLink,
     });
-    setAddPhotos((prev) => {
+    setAddedPhotos((prev) => {
       return [...prev, filename];
     });
     setPhotoLink("");
   }
 
-  function uploadPhoto(ev) {
+  async function uploadPhotoFromDevice(ev) {
     const files = ev.target.files;
     const data = new FormData();
-    data.set("photos[]", files);
-    console.log(files);
-
+    for (let i = 0; i < files.length; i++) {
+      data.append("photos", files[i]);
+    }
     axios
-      .post("/upload", data, {
-        headers: { "Content-type": "multipart/form-data" },
+      .post("/upload-by-device", data, {
+        headers: { "Content-Type": "multipart/form-data" },
       })
       .then((response) => {
-        const { data: filename } = response;
-        setAddPhotos((prev) => {
-          return [...prev, filename];
+        const { data: filenames } = response;
+        setAddedPhotos((prev) => {
+          return [...prev, ...filenames];
         });
       });
   }
@@ -133,11 +133,9 @@ export default function PlacesPage() {
             </div>
             <div className="mt-2 grid gap-2 grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
               {addedPhotos.length > 0 &&
-                addedPhotos.map((link) => {
-                  console.log("ckeck link", link);
+                addedPhotos.map((link, index) => {
                   return (
-                    <div>
-                      {/* {link} */}
+                    <div key={index}>
                       <img
                         className="rounded-2xl"
                         src={"http://localhost:4000/uploads/" + link}
@@ -152,7 +150,8 @@ export default function PlacesPage() {
                   className="hidden"
                   name=""
                   id=""
-                  onChange={uploadPhoto}
+                  onChange={uploadPhotoFromDevice}
+                  multiple
                 />
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
