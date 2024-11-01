@@ -21,9 +21,11 @@ app.use(
     credentials: true, // Cho phép gửi credentials
   })
 );
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use("/uploads", express.static(__dirname + "/uploads"));
+const path = require("path");
+app.use("/uploads", express.static(path.join(__dirname, "public/uploads")));
 app.use("/", router);
 
 app.listen(4000);

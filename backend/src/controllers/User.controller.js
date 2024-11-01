@@ -6,7 +6,7 @@ const jwtSecret = "hjdsabdsajkdhjasdhjksa123";
 const imageDownloader = require("image-downloader");
 const path = require("path");
 const multer = require("multer");
-
+const fs = require("fs");
 const saltRounds = 10;
 const salt = bcrypt.genSaltSync(saltRounds);
 const register = async (req, res) => {
@@ -139,24 +139,38 @@ const uploadByLink = async (req, res) => {
   const { link } = req.body;
   const newName = "photo" + Date.now() + ".jpg";
 
-  const uploadsDir = path.join(__dirname, "..", "uploads");
+  const uploadsDir = path.join(__dirname, "..", "/public/uploads");
   const uploadPath = path.join(uploadsDir, newName);
   await imageDownloader.image({
     url: link,
     dest: uploadPath,
   });
   res.json(newName);
+  console.log(uploadsDir);
 };
 
 // const photosMiddleware = multer({ dest: "uploads" });
-const upload = async (req, res) => {
-  try {
-    const files = req.files;
-    console.log(files);
-    res.json(req.photos);
-  } catch (error) {
-    res.json(error);
+
+const uploadFromDevice = async (req, res) => {
+  const uploadedFilesbyDevice = [];
+  for (let i = 0; i < req.files.length; i++) {
+    const { path: oldPath, originalname } = req.files[i]; // Đổi tên `path` để tránh xung đột với module path
+    const newFileName = `${Date.now()}-${originalname}`; // Tạo tên tệp mới
+    const newPath = path.join(__dirname, "..", "public/uploads", newFileName); // Tạo đường dẫn mới
+
+    fs.renameSync(oldPath, newPath); // Di chuyển tệp đến đường dẫn mới
+
+    const fileUrl = `${newFileName}`; // Tạo URL của tệp
+    uploadedFilesbyDevice.push(fileUrl); // Thêm URL vào mảng
   }
+  res.json(uploadedFilesbyDevice); // Trả về danh sách URL của các tệp đã tải lên
 };
 
-module.exports = { register, login, profile, logout, uploadByLink, upload };
+module.exports = {
+  register,
+  login,
+  profile,
+  logout,
+  uploadByLink,
+  uploadFromDevice,
+};

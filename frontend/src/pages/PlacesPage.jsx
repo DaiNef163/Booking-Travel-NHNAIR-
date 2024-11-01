@@ -135,9 +135,9 @@ export default function PlacesPage() {
               {addedPhotos.length > 0 &&
                 addedPhotos.map((link, index) => {
                   return (
-                    <div key={index}>
+                    <div className="h-32 flex" key={index}>
                       <img
-                        className="rounded-2xl"
+                        className="rounded-2xl w-fullobject-cover bg-center bg-cover "
                         src={"http://localhost:4000/uploads/" + link}
                         alt=""
                       />
